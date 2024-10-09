@@ -34,6 +34,7 @@ namespace PdfSharp.Drawing
             _y = 0;
             _k = 0;
             _gs = 0;
+            _spot = null;
             RgbChanged();
             //_cs.GetType(); // Suppress warning
         }
@@ -50,6 +51,7 @@ namespace PdfSharp.Drawing
             _y = 0;
             _k = 0;
             _gs = 0;
+            _spot = null;
             RgbChanged();
             //_cs.GetType(); // Suppress warning
         }
@@ -66,12 +68,56 @@ namespace PdfSharp.Drawing
             _g = 0;
             _b = 0;
             _gs = 0f;
+            _spot = null;
             CmykChanged();
         }
 
         XColor(double cyan, double magenta, double yellow, double black)
             : this(1.0, cyan, magenta, yellow, black)
-        { }
+        {
+        }
+
+        XColor(string spotName, double cyan, double magenta, double yellow, double black)
+            : this(spotName, 1.0f, cyan, magenta, yellow, black)
+        {
+        }
+
+        XColor(string spotName, double alpha, double cyan, double magenta, double yellow, double black)
+        {
+            _cs = XColorSpace.Cmyk;
+            _a = (float)(alpha > 1 ? 1 : (alpha < 0 ? 0 : alpha));
+            _c = (float)(cyan > 1 ? 1 : (cyan < 0 ? 0 : cyan));
+            _m = (float)(magenta > 1 ? 1 : (magenta < 0 ? 0 : magenta));
+            _y = (float)(yellow > 1 ? 1 : (yellow < 0 ? 0 : yellow));
+            _k = (float)(black > 1 ? 1 : (black < 0 ? 0 : black));
+            _r = 0;
+            _g = 0;
+            _b = 0;
+            _gs = 0f;
+            _spot = spotName;
+            CmykChanged();
+        }
+
+        XColor(string spotName, byte red, byte green, byte blue)
+            : this(spotName, 255, red, green, blue)
+        {
+        }
+
+        XColor(string spotName, byte alpha, byte red, byte green, byte blue)
+        {
+            _cs = XColorSpace.Rgb;
+            _a = alpha / 255f;
+            _r = red;
+            _g = green;
+            _b = blue;
+            _c = 0;
+            _m = 0;
+            _y = 0;
+            _k = 0;
+            _gs = 0;
+            _spot = spotName;
+            RgbChanged();
+        }
 
         XColor(double gray)
         {
@@ -91,6 +137,7 @@ namespace PdfSharp.Drawing
             _m = 0;
             _y = 0;
             _k = 0;
+            _spot = null;
             GrayChanged();
         }
 
@@ -258,6 +305,39 @@ namespace PdfSharp.Drawing
         }
 
         /// <summary>
+        /// Creates an XColor from the specified cmyk spot color values.
+        /// </summary>      
+        public static XColor FromSpot(string spotName, double cyan, double magenta, double yellow, double black)
+        {
+            return new XColor(spotName, cyan, magenta, yellow, black);
+        }
+
+        /// <summary>
+        /// Creates an XColor from the specified cmyk spot color values.
+        /// </summary>
+        public static XColor FromSpot(string spotName, double alpha, double cyan, double magenta, double yellow, double black)
+        {
+            return new XColor(spotName, alpha, cyan, magenta, yellow, black);
+        }
+
+        /// <summary>
+        /// Creates an XColor from the specified rgb spot color values.
+        /// </summary>        
+        public static XColor FromSpot(string spotName, int red, int green, int blue)
+        {
+            return new XColor(spotName, (byte)red, (byte)green, (byte)blue);
+        }
+
+        /// <summary>
+        /// Creates an XColor from the specified rgb spot color values.
+        /// </summary>
+        public static XColor FromSpot(string spotName, int alpha, int red, int green, int blue)
+        {
+            return new XColor(spotName, alpha, red, green, blue);
+        }
+
+
+        /// <summary>
         /// Creates an XColor structure from the specified gray value.
         /// </summary>
         public static XColor FromGrayScale(double grayScale)
@@ -373,7 +453,7 @@ namespace PdfSharp.Drawing
                 XColor color = (XColor)obj;
                 if (_r == color._r && _g == color._g && _b == color._b &&
                   _c == color._c && _m == color._m && _y == color._y && _k == color._k &&
-                  _gs == color._gs)
+                  _gs == color._gs && _spot == color._spot)
                 {
                     return _a == color._a;
                 }
@@ -400,7 +480,7 @@ namespace PdfSharp.Drawing
             // ReSharper disable CompareOfFloatsByEqualityOperator
             if (left._r == right._r && left._g == right._g && left._b == right._b &&
                 left._c == right._c && left._m == right._m && left._y == right._y && left._k == right._k &&
-                left._gs == right._gs)
+                left._gs == right._gs && left._spot == right._spot)
             {
                 return left._a == right._a;
             }
@@ -531,7 +611,7 @@ namespace PdfSharp.Drawing
         void RgbChanged()
         {
             // ReSharper disable LocalVariableHidesMember
-            _cs = XColorSpace.Rgb;
+            _cs = _cs == XColorSpace.Spot ? XColorSpace.Spot : XColorSpace.Rgb;
             int c = 255 - _r;
             int m = 255 - _g;
             int y = 255 - _b;
@@ -554,7 +634,7 @@ namespace PdfSharp.Drawing
         /// </summary>
         void CmykChanged()
         {
-            _cs = XColorSpace.Cmyk;
+            _cs = _cs == XColorSpace.Spot ? XColorSpace.Spot : XColorSpace.Cmyk;
             float black = _k * 255;
             float factor = 255f - black;
             _r = (byte)(255 - Math.Min(255f, _c * factor + black));
@@ -727,6 +807,16 @@ namespace PdfSharp.Drawing
             }
         }
 
+        public string SpotName
+        {
+            get => _spot;
+            set
+            {
+                if (_spot != value)
+                    _spot = value;
+            }
+        }
+
         /// <summary>
         /// Represents the empty color.
         /// </summary>
@@ -773,5 +863,7 @@ namespace PdfSharp.Drawing
         float _k;  // /
 
         float _gs; // >--- gray scale
+
+        string _spot; // >--- spot color name
     }
 }

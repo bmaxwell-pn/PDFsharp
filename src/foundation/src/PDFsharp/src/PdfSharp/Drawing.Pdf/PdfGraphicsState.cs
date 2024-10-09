@@ -162,7 +162,16 @@ namespace PdfSharp.Drawing.Pdf
                 _realizedDashStyle = dashStyle;
             }
 
-            if (colorMode != PdfColorMode.Cmyk)
+            if(color.ColorSpace == XColorSpace.Spot)
+            {
+                if(!ColorSpaceHelper.IsEqualSpot(this._realizedStrokeColor, color))
+                {
+                    PdfSeparation pdfSeparation;
+                    string separationName = renderer.GetSeparationName(color, out pdfSeparation);
+                    renderer.Append($"{separationName} CS 1  SCN\n");
+                }
+            }
+            else if (colorMode != PdfColorMode.Cmyk)
             {
                 if (_realizedStrokeColor.Rgb != color.Rgb)
                 {
@@ -250,7 +259,16 @@ namespace PdfSharp.Drawing.Pdf
         {
             color = ColorSpaceHelper.EnsureColorMode(colorMode, color);
 
-            if (colorMode != PdfColorMode.Cmyk)
+            if(color.ColorSpace == XColorSpace.Spot)
+            {
+                if(!ColorSpaceHelper.IsEqualSpot(_realizedFillColor, color))
+                {
+                    PdfSeparation pdfSeparation;
+                    string separationName = renderer.GetSeparationName(color, out pdfSeparation);
+                    renderer.Append($"{separationName} cs 1  scn\n");
+                }
+            }
+            else if (colorMode != PdfColorMode.Cmyk)
             {
                 if (_realizedFillColor.IsEmpty || _realizedFillColor.Rgb != color.Rgb)
                 {

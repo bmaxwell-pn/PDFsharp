@@ -2309,6 +2309,14 @@ namespace PdfSharp.Drawing.Pdf
             return _form.GetFontName(glyphTypeface, fontType, out pdfFont);
         }
 
+        internal string GetSeparation(XColor color, out PdfSeparation pdfSeparation)
+        {
+            if (_page != null)
+                return _page.GetSeparationName(color, out pdfSeparation);
+            else
+                return _form.GetSeparationName(color, out pdfSeparation);
+        }
+
         /// <summary>
         /// Gets the resource name of the specified image within this page or form.
         /// </summary>

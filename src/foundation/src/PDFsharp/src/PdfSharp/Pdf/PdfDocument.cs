@@ -753,6 +753,13 @@ namespace PdfSharp.Pdf
         PdfFontTable? _fontTable;
 
         /// <summary>
+        /// Gets the document separation tables that hold all spot colors used in the current document.
+        /// </summary>
+        internal PdfSeparationTable SeparationTable
+            => _separationTable ??= new(this);
+        PdfSeparationTable? _separationTable;
+
+        /// <summary>
         /// Gets the document image table that holds all images used in the current document.
         /// </summary>
         internal PdfImageTable ImageTable

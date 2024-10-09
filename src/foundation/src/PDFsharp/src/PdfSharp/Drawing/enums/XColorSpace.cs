@@ -22,5 +22,10 @@ namespace PdfSharp.Drawing
         /// Identifies the gray scale color space.
         /// </summary>
         GrayScale,
+
+        /// <summary>
+        /// Identified the spot color space.
+        /// </summary>
+        Spot,
     }
 }

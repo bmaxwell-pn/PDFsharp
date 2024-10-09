@@ -46,6 +46,23 @@ namespace PdfSharp.Pdf.Advanced
         }
 
         /// <summary>
+        ///  Adds the specified separation to this resource dictionary and returns its local resoure name.
+        /// </summary>
+        public string AddSeparation(PdfSeparation separation)
+        {
+            string name;
+            if (!_resources.TryGetValue(separation, out name))
+            {
+                name = NextSeparationName;
+                _resources[separation] = name;
+                if (separation.Reference == null)
+                    Owner.IrefTable.Add(separation);
+                Separations.Elements[name] = separation.Reference;
+            }
+            return name;
+        }
+
+        /// <summary>
         /// Adds the specified image to this resource dictionary
         /// and returns its local resource name.
         /// </summary>
@@ -155,6 +172,13 @@ namespace PdfSharp.Pdf.Advanced
         PdfResourceMap? _fonts;
 
         /// <summary>
+        /// Gets the separations map.
+        /// </summary>
+        internal PdfResourceMap Separations => _separations ??= (PdfResourceMap?)Elements.GetValue(Keys.ColorSpace, VCF.Create) ?? NRT.ThrowOnNull<PdfResourceMap>();
+
+        PdfResourceMap? _separations;
+
+        /// <summary>
         /// Gets the external objects map.
         /// </summary>
         internal PdfResourceMap XObjects => _xObjects ??= (PdfResourceMap?)Elements.GetValue(Keys.XObject, VCF.Create) ?? NRT.ThrowOnNull<PdfResourceMap>();
@@ -200,6 +224,19 @@ namespace PdfSharp.Pdf.Advanced
             }
         }
         int _fontNumber;
+
+
+        string NextSeparationName
+        {
+            get
+            {
+                string name;
+                while (ExistsResourceName(name = $"/CS{_separationNumber++}"))
+                { }
+                return name;
+            }
+        }
+        int _separationNumber;
 
         /// <summary>
         /// Gets a new local name for this resource.

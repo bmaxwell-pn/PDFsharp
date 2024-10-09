@@ -58,7 +58,7 @@ namespace PdfSharp.Drawing
         {
             if (gfx == null)
                 throw new ArgumentNullException(nameof(gfx));
-            if (size.Width < 1 || size.Height < 1)
+            if (size.Width <= 0 || size.Height <= 0)
                 throw new ArgumentNullException(nameof(size), "The size of the XPdfForm is to small.");
 
             _formState = FormState.Created;
@@ -97,7 +97,7 @@ namespace PdfSharp.Drawing
         /// <param name="viewBox">The view box of the page.</param>
         public XForm(PdfDocument document, XRect viewBox)
         {
-            if (viewBox.Width < 1 || viewBox.Height < 1)
+            if (viewBox.Width <= 0 || viewBox.Height <= 0)
                 throw new ArgumentNullException(nameof(viewBox), "The size of the XPdfForm is to small.");
             // I must tie the XPdfForm to a document immediately, because otherwise I would have no place where
             // to store the resources.

@@ -16,6 +16,13 @@ namespace PdfSharp.Pdf.Internal
         public static XColor EnsureColorMode(PdfColorMode colorMode, XColor color)
         {
 #if true
+            if (color.ColorSpace == XColorSpace.Spot)
+            {
+                if (colorMode == PdfColorMode.Rgb)
+                    return XColor.FromSpot(color.SpotName, color.R, color.G, color.B);
+                if (colorMode == PdfColorMode.Cmyk)
+                    return XColor.FromSpot(color.SpotName, color.C, color.M, color.Y, color.K);
+            }
             if (colorMode == PdfColorMode.Rgb && color.ColorSpace != XColorSpace.Rgb)
                 return XColor.FromArgb((int)(color.A * 255), color.R, color.G, color.B);
 
@@ -51,6 +58,13 @@ namespace PdfSharp.Pdf.Internal
             if (x.ColorSpace != XColorSpace.Cmyk || y.ColorSpace != XColorSpace.Cmyk)
                 return false;
             return x.C.Equals(y.C) && x.M.Equals(y.M) && x.Y.Equals(y.Y) && x.K.Equals(y.K);
+        }
+
+        public static bool IsEqualSpot(XColor x, XColor y)
+        {
+            if (x.ColorSpace != XColorSpace.Spot || y.ColorSpace != XColorSpace.Spot)
+                return false;
+            return x.SpotName == y.SpotName && x.C == y.C && x.M == y.M && x.Y == y.Y && x.K == y.K && x.R == y.R && x.G == y.G && x.B == y.B;
         }
     }
 }

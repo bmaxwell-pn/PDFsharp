@@ -714,6 +714,21 @@ namespace PdfSharp.Pdf
         string IContentStream.GetFontName(string idName, byte[] fontData, out PdfFont pdfFont)
             => GetFontName(idName, fontData, out pdfFont);
 
+
+        /// <summary>
+        /// Gets the resource name of the specified spot color data with this page.
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="pdfSeparation"></param>
+        /// <returns></returns>
+        internal string GetSeparationName(XColor color, out PdfSeparation pdfSeparation)
+        {
+            pdfSeparation = _document.SeparationTable.GetSeparation(color);
+            Debug.Assert(pdfSeparation != null);
+            string name = Resources.AddSeparation(pdfSeparation);
+            return name;
+        }
+
         /// <summary>
         /// Gets the resource name of the specified image within this page.
         /// </summary>

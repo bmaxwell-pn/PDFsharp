@@ -560,7 +560,7 @@ namespace PdfSharp.Pdf.Internal
 
             // If not defined let color decide.
             if (colorMode == PdfColorMode.Undefined)
-                colorMode = color.ColorSpace == XColorSpace.Cmyk ? PdfColorMode.Cmyk : PdfColorMode.Rgb;
+                colorMode = (color.ColorSpace == XColorSpace.Cmyk || color.ColorSpace == XColorSpace.Spot) ? PdfColorMode.Cmyk : PdfColorMode.Rgb;
 
             switch (colorMode)
             {
